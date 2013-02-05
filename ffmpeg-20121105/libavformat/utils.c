@@ -3088,77 +3088,133 @@ void ff_free_stream(AVFormatContext *s, AVStream *st){
 
 void avformat_free_context(AVFormatContext *s)
 {
-    int i;
+/*
+	参数:
+		1、
+		
+	返回:
+		1、
+		
+	说明:
+		1、
+*/
+	int i;
 
-    if (!s)
-        return;
+	if (!s)
+		return;
 
-    av_opt_free(s);
-    if (s->iformat && s->iformat->priv_class && s->priv_data)
-        av_opt_free(s->priv_data);
+	av_opt_free(s);
+	
+	if (s->iformat && s->iformat->priv_class && s->priv_data)
+		av_opt_free(s->priv_data);
 
-    for(i=s->nb_streams-1; i>=0; i--) {
-        ff_free_stream(s, s->streams[i]);
-    }
-    for(i=s->nb_programs-1; i>=0; i--) {
-        av_dict_free(&s->programs[i]->metadata);
-        av_freep(&s->programs[i]->stream_index);
-        av_freep(&s->programs[i]);
-    }
-    av_freep(&s->programs);
-    av_freep(&s->priv_data);
-    while(s->nb_chapters--) {
-        av_dict_free(&s->chapters[s->nb_chapters]->metadata);
-        av_freep(&s->chapters[s->nb_chapters]);
-    }
-    av_freep(&s->chapters);
-    av_dict_free(&s->metadata);
-    av_freep(&s->streams);
-    av_free(s);
+	for(i=s->nb_streams-1; i>=0; i--) 
+	{
+		ff_free_stream(s, s->streams[i]);
+	}
+	
+	for(i=s->nb_programs-1; i>=0; i--) 
+	{
+		av_dict_free(&s->programs[i]->metadata);
+		av_freep(&s->programs[i]->stream_index);
+		av_freep(&s->programs[i]);
+	}
+	
+	av_freep(&s->programs);
+	av_freep(&s->priv_data);
+	while(s->nb_chapters--) 
+	{
+		av_dict_free(&s->chapters[s->nb_chapters]->metadata);
+		av_freep(&s->chapters[s->nb_chapters]);
+	}
+	av_freep(&s->chapters);
+	av_dict_free(&s->metadata);
+	av_freep(&s->streams);
+	av_free(s);
 }
 
 #if FF_API_CLOSE_INPUT_FILE
 void av_close_input_file(AVFormatContext *s)
 {
-    avformat_close_input(&s);
+/*
+	参数:
+		1、
+		
+	返回:
+		1、
+		
+	说明:
+		1、
+*/
+    	avformat_close_input(&s);
 }
 #endif
 
 void avformat_close_input(AVFormatContext **ps)
 {
-    AVFormatContext *s = *ps;
-    AVIOContext *pb = s->pb;
+/*
+	参数:
+		1、
+		
+	返回:
+		1、
+		
+	说明:
+		1、
+*/
+	AVFormatContext *s = *ps;
+	AVIOContext *pb = s->pb;
 
-    if ((s->iformat && s->iformat->flags & AVFMT_NOFILE) ||
-        (s->flags & AVFMT_FLAG_CUSTOM_IO))
-        pb = NULL;
+	if ((s->iformat && s->iformat->flags & AVFMT_NOFILE) ||(s->flags & AVFMT_FLAG_CUSTOM_IO))/* 用户传入s->pb 的情况下，这里只是将其简单的设置为空，因为内存的分配等都是由用户自己控制的，此处不再进行释放*/
+		pb = NULL;
 
-    flush_packet_queue(s);
+	flush_packet_queue(s);
 
-    if (s->iformat) {
-        if (s->iformat->read_close)
-            s->iformat->read_close(s);
-    }
+	if (s->iformat) 
+	{
+		if (s->iformat->read_close)
+			s->iformat->read_close(s);
+	}
 
-    avformat_free_context(s);
+	avformat_free_context(s);
 
-    *ps = NULL;
+	*ps = NULL;
 
-    avio_close(pb);
+	avio_close(pb); /* 此处的s->pb 是有ffmpeg  自己分配的内存，所以需要自己进行释放*/
 }
 
 #if FF_API_NEW_STREAM
 AVStream *av_new_stream(AVFormatContext *s, int id)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
-    if (st)
-        st->id = id;
-    return st;
+/*
+	参数:
+		1、
+		
+	返回:
+		1、
+		
+	说明:
+		1、
+*/
+	AVStream *st = avformat_new_stream(s, NULL);
+	if (st)
+		st->id = id;
+	return st;
 }
 #endif
 
 AVStream *avformat_new_stream(AVFormatContext *s, const AVCodec *c)
 {
+/*
+	参数:
+		1、
+		
+	返回:
+		1、
+		
+	说明:
+		1、
+*/
     AVStream *st;
     int i;
     AVStream **streams;
